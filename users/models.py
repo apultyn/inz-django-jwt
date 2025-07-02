@@ -1,5 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.utils.translation import gettext_lazy
 
 
@@ -15,16 +19,14 @@ class CustomAccountManager(BaseUserManager):
         if other.get("is_superuser") is not True:
             raise ValueError("Superuser must be is_superuser=True")
 
-        return self.create_user(email, password)
+        return self.create_user(email, password, **other)
 
     def create_user(self, email, password, **other):
         if not email:
             raise ValueError("You must provide an email")
 
         email = self.normalize_email(email)
-        user = self.model(
-            email=email, **other
-        )
+        user = self.model(email=email, **other)
         user.set_password(password)
         user.save()
         return user
@@ -38,7 +40,6 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomAccountManager()
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["email"]
 
     def __str__(self):
         return self.user_name

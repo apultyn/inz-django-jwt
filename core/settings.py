@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "users",
+    "review_app",
     "rest_framework",
     "corsheaders",
 ]
@@ -82,7 +83,7 @@ DATABASES = {
         "NAME": "django-jwt-db",
         "USER": "root",
         "PASSWORD": "my-secret-pwd",
-        "HOST": "localhost",
+        "HOST": "127.0.0.1",
         "PORT": "3306",
     }
 }
