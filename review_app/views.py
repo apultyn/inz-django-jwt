@@ -17,7 +17,7 @@ class AdminPermission(BasePermission):
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects().all()
+    queryset = Book.objects.all()
     serializer_class = BookSerializer
 
     def get_permissions(self):
@@ -27,7 +27,7 @@ class BookViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects().all()
+    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
     def get_permissions(self):

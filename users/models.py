@@ -22,6 +22,7 @@ class CustomAccountManager(BaseUserManager):
         return self.create_user(email, password, **other)
 
     def create_user(self, email, password, **other):
+        other.setdefault("is_active", True)
         if not email:
             raise ValueError("You must provide an email")
 
@@ -42,4 +43,4 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
 
     def __str__(self):
-        return self.user_name
+        return self.email
