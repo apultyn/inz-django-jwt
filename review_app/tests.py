@@ -1,10 +1,12 @@
 from django.urls import path, include
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
 
 from rest_framework.test import APITestCase, URLPatternsTestCase
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Book
+from users.models import NewUser
 
 
 class BookITTests(APITestCase, URLPatternsTestCase):
@@ -16,12 +18,20 @@ class BookITTests(APITestCase, URLPatternsTestCase):
             id="2", title="Brave New World", author="Aldous Huxley"
         )
 
-        # self.user = User.objects.create_user(
-        #     password="passwd", email="user@example.com"
-        # )
-        # self.admin = User.objects.create_user(
-        #     password="passwd", email="admin@example.com"
-        # )
+        self.user = NewUser.objects.create_user(
+            password="passwd", email="user@example.com"
+        )
+        self.admin = NewUser.objects.create_user(
+            password="passwd", email="admin@example.com"
+        )
+
+        self.group = Group.objects.create(name="book_admin")
+        self.admin.groups.add(self.group)
+        self.admin.save()
+
+    def get_jwt_token(self, user):
+        refresh = RefreshToken.for_user(user)
+        return str(refresh.access_token)
 
     def test_view_books(self):
         response = self.client.get("/api/books/", format="json")
@@ -43,3 +53,25 @@ class BookITTests(APITestCase, URLPatternsTestCase):
             data={"title": "Dune", "author": "Frank Herbert"},
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_book_user(self):
+        token = self.get_jwt_token(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.post(
+            "/api/books/",
+            format="json",
+            data={"title": "Dune", "author": "Frank Herbert"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_book_admin(self):
+        token = self.get_jwt_token(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.post(
+            "/api/books/",
+            format="json",
+            data={"title": "Dune", "author": "Frank Herbert"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

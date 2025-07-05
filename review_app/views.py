@@ -1,8 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import (
-    AllowAny,
     BasePermission,
-    IsAuthenticatedOrReadOnly,
     SAFE_METHODS,
 )
 
@@ -19,7 +17,7 @@ class BookPermission(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.group.filter(name="book_admin").exists()
+            and request.user.groups.filter(name="book_admin").exists()
         )
 
     def has_object_permission(self, request, view, _):
@@ -35,7 +33,7 @@ class ReviewPermission(BasePermission):
         return (
             request.user
             and request.user.is_authenticated
-            and request.user.group.filter(name="book_admin").exists()
+            and request.user.groups.filter(name="book_admin").exists()
         )
 
     def has_object_permission(self, request, view, _):
