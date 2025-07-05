@@ -11,3 +11,8 @@ dependencies = [
     "djangorestframework-simplejwt>=5.5.0",
     "mysqlclient>=2.2.7",
 ]
+
+[dependency-groups]
+dev = [
+    "django-extensions>=4.1",
+]

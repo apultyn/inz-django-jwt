@@ -5,7 +5,9 @@ from .views import BookViewSet, ReviewViewSet
 app_name = "review_app"
 
 router = DefaultRouter()
-router.register("books/", BookViewSet)
-router.register("reviews/", ReviewViewSet)
+router.register("books", BookViewSet, basename="book")
+router.register("reviews", ReviewViewSet, basename="review")
 
-urlpatterns = router.urls
+urlpatterns = []
+
+urlpatterns += router.urls
