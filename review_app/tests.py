@@ -75,3 +75,61 @@ class BookITTests(APITestCase, URLPatternsTestCase):
             data={"title": "Dune", "author": "Frank Herbert"},
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_update_book_unauth(self):
+        response = self.client.put(
+            "/api/books/1/",
+            format="json",
+            data={"title": "Dune", "author": "Frank Herbert"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_book_user(self):
+        token = self.get_jwt_token(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.put(
+            "/api/books/1/",
+            format="json",
+            data={"title": "Dune", "author": "Frank Herbert"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_book_admin(self):
+        token = self.get_jwt_token(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.put(
+            "/api/books/1/",
+            format="json",
+            data={"title": "Dune", "author": "Frank Herbert"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_book_unauth(self):
+        response = self.client.delete(
+            "/api/books/1/",
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_book_user(self):
+        token = self.get_jwt_token(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.delete(
+            "/api/books/1/",
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_book_admin(self):
+        token = self.get_jwt_token(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.delete(
+            "/api/books/1/",
+            format="json",
+            data={"title": "Dune", "author": "Frank Herbert"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
