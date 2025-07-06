@@ -9,7 +9,7 @@ from .models import Book, Review
 from users.models import NewUser
 
 
-class ITTests(APITestCase, URLPatternsTestCase):
+class BaseITTests(APITestCase, URLPatternsTestCase):
     urlpatterns = [path("api/", include("review_app.urls"))]
 
     def setUp(self):
@@ -37,6 +37,8 @@ class ITTests(APITestCase, URLPatternsTestCase):
         refresh = RefreshToken.for_user(user)
         return str(refresh.access_token)
 
+
+class BookITTests(BaseITTests):
     def test_view_books(self):
         response = self.client.get("/api/books/", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -93,7 +95,7 @@ class ITTests(APITestCase, URLPatternsTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update_book_unauth(self):
-        response = self.client.put(
+        response = self.client.patch(
             "/api/books/1/",
             format="json",
             data={"title": "Dune", "author": "Frank Herbert"},
@@ -104,7 +106,7 @@ class ITTests(APITestCase, URLPatternsTestCase):
         token = self.get_jwt_token(self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
 
-        response = self.client.put(
+        response = self.client.patch(
             "/api/books/1/",
             format="json",
             data={"title": "Dune", "author": "Frank Herbert"},
@@ -115,12 +117,16 @@ class ITTests(APITestCase, URLPatternsTestCase):
         token = self.get_jwt_token(self.admin)
         self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
 
-        response = self.client.put(
+        response = self.client.patch(
             "/api/books/1/",
             format="json",
-            data={"title": "Dune", "author": "Frank Herbert"},
+            data={"title": "Dune"},
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        updated_book = Book.objects.get(id=1)
+        self.assertEqual(updated_book.title, "Dune")
+        self.assertEqual(updated_book.author, "George Orwell")
 
     def test_delete_book_unauth(self):
         response = self.client.delete(
@@ -149,3 +155,59 @@ class ITTests(APITestCase, URLPatternsTestCase):
             data={"title": "Dune", "author": "Frank Herbert"},
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class ReviewITTests(BaseITTests):
+    def test_view_reviews(self):
+        response = self.client.get("/api/reviews/", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_view_review(self):
+        response = self.client.get("/api/reviews/1/", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data
+        self.assertEqual(data["id"], 1)
+        self.assertEqual(data["comment"], "Awesome book")
+        self.assertEqual(data["stars"], 5)
+
+    def test_create_review_unauth(self):
+        response = self.client.post(
+            "/api/reviews/",
+            format="json",
+            data={"stars": 4, "comment": "A little too short", "book": 1},
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_review_user(self):
+        token = self.get_jwt_token(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.post(
+            "/api/reviews/",
+            format="json",
+            data={"stars": 4, "comment": "A little too short", "book": 1},
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        book1_reviews = Review.objects.filter(book=1)
+        review = Review.objects.get(stars=4)
+        self.assertEqual(book1_reviews.count(), 2)
+        self.assertEqual(review.author.id, self.user.id)
+
+    def test_create_review_admin(self):
+        token = self.get_jwt_token(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.post(
+            "/api/reviews/",
+            format="json",
+            data={"stars": 4, "comment": "A little too short", "book": 1},
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        book1_reviews = Review.objects.filter(book=1)
+        self.assertEqual(book1_reviews.count(), 2)
+        review = Review.objects.get(stars=4)
+        self.assertEqual(book1_reviews.count(), 2)
+        self.assertEqual(review.author.id, self.admin.id)

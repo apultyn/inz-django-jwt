@@ -28,7 +28,7 @@ class ReviewPermission(BasePermission):
     def has_permission(self, request, _):
         if request.method in SAFE_METHODS:
             return True
-        if request.action == "create":
+        if request.method == "POST":
             return request.user.is_authenticated
         return (
             request.user
@@ -50,3 +50,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [ReviewPermission]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)

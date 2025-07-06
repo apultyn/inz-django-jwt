@@ -7,7 +7,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ("id", "stars", "comment", "author_email")
+        fields = ("id", "stars", "comment", "author_email", "book")
 
 
 class BookSerializer(serializers.ModelSerializer):
