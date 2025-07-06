@@ -131,7 +131,6 @@ class BookITTests(BaseITTests):
     def test_delete_book_unauth(self):
         response = self.client.delete(
             "/api/books/1/",
-            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -141,7 +140,6 @@ class BookITTests(BaseITTests):
 
         response = self.client.delete(
             "/api/books/1/",
-            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -151,8 +149,6 @@ class BookITTests(BaseITTests):
 
         response = self.client.delete(
             "/api/books/1/",
-            format="json",
-            data={"title": "Dune", "author": "Frank Herbert"},
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -211,3 +207,61 @@ class ReviewITTests(BaseITTests):
         review = Review.objects.get(stars=4)
         self.assertEqual(book1_reviews.count(), 2)
         self.assertEqual(review.author.id, self.admin.id)
+
+    def test_update_review_unauth(self):
+        response = self.client.patch(
+            "/api/reviews/1/",
+            format="json",
+            data={"stars": 3},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_review_user(self):
+        token = self.get_jwt_token(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.patch(
+            "/api/reviews/1/",
+            format="json",
+            data={"stars": 3},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_review_admin(self):
+        token = self.get_jwt_token(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.patch(
+            "/api/reviews/1/",
+            format="json",
+            data={"stars": 3},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        review = Review.objects.get(id=1)
+        self.assertEqual(review.stars, 3)
+        self.assertEqual(review.comment, "Awesome book")
+
+    def test_delete_review_unauth(self):
+        response = self.client.delete("/api/reviews/1/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_review_user(self):
+        token = self.get_jwt_token(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.delete("/api/reviews/1/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_review_admin(self):
+        token = self.get_jwt_token(self.admin)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.delete("/api/reviews/1/")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        book1_reviews = Review.objects.filter(book=1)
+        self.assertEqual(book1_reviews.count(), 0)
