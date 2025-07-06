@@ -44,13 +44,15 @@ class ReviewPermission(BasePermission):
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [BookPermission]
 
+    def get_queryset(self):
+        return Book.objects.all()
+
     def list(self, request, *args, **kwargs):
-        search = request.query_params.get("searchstring", "").strip().lower()
-        queryset = self.queryset
+        search = request.query_params.get("searchString", "").strip().lower()
+        queryset = self.get_queryset()
 
         if search:
             queryset = queryset.filter(
@@ -62,9 +64,11 @@ class BookViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [ReviewPermission]
+
+    def get_queryset(self):
+        return Review.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

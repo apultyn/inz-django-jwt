@@ -49,7 +49,7 @@ class BookITTests(BaseITTests):
         Book.objects.create(
             id="4", title="The other story of george", author="Some author"
         )
-        response = self.client.get("/api/books/?searchstring=george", format="json")
+        response = self.client.get("/api/books/?searchString=george", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
 
@@ -192,13 +192,13 @@ class ReviewITTests(BaseITTests):
         response = self.client.post(
             "/api/reviews/",
             format="json",
-            data={"stars": 4, "comment": "A little too short", "book": 1},
+            data={"stars": 4, "comment": "A little too short", "book": 2},
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        book1_reviews = Review.objects.filter(book=1)
+        book1_reviews = Review.objects.filter(book=2)
         review = Review.objects.get(stars=4)
-        self.assertEqual(book1_reviews.count(), 2)
+        self.assertEqual(book1_reviews.count(), 1)
         self.assertEqual(review.author.id, self.user.id)
 
     def test_create_review_admin(self):
