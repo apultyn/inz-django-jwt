@@ -25,8 +25,7 @@ SECRET_KEY = "django-insecure-z&(4u6pw$a7jd4984xt&vh8tk7hkslwp1oz9rim32dbyt1qfbl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["django-jwt-fe", "127.0.0.1"]
 
 # Application definition
 
@@ -83,7 +82,7 @@ DATABASES = {
         "NAME": "django-jwt-db",
         "USER": "root",
         "PASSWORD": "my-secret-pwd",
-        "HOST": "127.0.0.1",
+        "HOST": "django-jwt-db",
         "PORT": "3306",
     }
 }
