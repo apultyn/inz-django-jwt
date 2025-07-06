@@ -44,6 +44,15 @@ class BookITTests(BaseITTests):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
+    def test_view_books_searchstring(self):
+        Book.objects.create(id="3", title="The story of george", author="Some author")
+        Book.objects.create(
+            id="4", title="The other story of george", author="Some author"
+        )
+        response = self.client.get("/api/books/?searchstring=george", format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+
     def test_view_book(self):
         response = self.client.get("/api/books/1/", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -59,6 +68,7 @@ class BookITTests(BaseITTests):
                         "stars": 5,
                         "comment": "Awesome book",
                         "author_email": "user@example.com",
+                        "book": 1,
                     }
                 ],
             },

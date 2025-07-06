@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-z&(4u6pw$a7jd4984xt&vh8tk7hkslwp1oz9rim32dbyt1qfbl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["django-jwt-fe", "127.0.0.1"]
+ALLOWED_HOSTS = ["django-jwt-be", "localhost"]
 
 # Application definition
 
@@ -52,6 +52,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:3000"]
 
 ROOT_URLCONF = "core.urls"
 
@@ -82,7 +84,8 @@ DATABASES = {
         "NAME": "django-jwt-db",
         "USER": "root",
         "PASSWORD": "my-secret-pwd",
-        "HOST": "django-jwt-db",
+        # "HOST": "django-jwt-db",
+        "HOST": "127.0.0.1",
         "PORT": "3306",
     }
 }
