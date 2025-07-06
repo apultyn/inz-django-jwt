@@ -9,7 +9,7 @@ from .models import Book, Review
 from users.models import NewUser
 
 
-class BookITTests(APITestCase, URLPatternsTestCase):
+class ITTests(APITestCase, URLPatternsTestCase):
     urlpatterns = [path("api/", include("review_app.urls"))]
 
     def setUp(self):
@@ -29,6 +29,10 @@ class BookITTests(APITestCase, URLPatternsTestCase):
         self.admin.groups.add(self.group)
         self.admin.save()
 
+        self.review1 = Review.objects.create(
+            id="1", stars="5", comment="Awesome book", author=self.user, book=self.book1
+        )
+
     def get_jwt_token(self, user):
         refresh = RefreshToken.for_user(user)
         return str(refresh.access_token)
@@ -39,11 +43,23 @@ class BookITTests(APITestCase, URLPatternsTestCase):
         self.assertEqual(len(response.data), 2)
 
     def test_view_book(self):
-        response = self.client.get("/api/books/2/", format="json")
+        response = self.client.get("/api/books/1/", format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             response.data,
-            {"id": 2, "title": "Brave New World", "author": "Aldous Huxley"},
+            {
+                "id": 1,
+                "title": "1984",
+                "author": "George Orwell",
+                "reviews": [
+                    {
+                        "id": 1,
+                        "stars": 5,
+                        "comment": "Awesome book",
+                        "author_email": "user@example.com",
+                    }
+                ],
+            },
         )
 
     def test_create_book_unauth(self):
@@ -133,45 +149,3 @@ class BookITTests(APITestCase, URLPatternsTestCase):
             data={"title": "Dune", "author": "Frank Herbert"},
         )
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-
-class ReviewITTests(APITestCase, URLPatternsTestCase):
-    urlpatterns = [path("api/", include("review_app.urls"))]
-
-    def setUp(self):
-        self.book1 = Book.objects.create(id="1", title="1984", author="George Orwell")
-        self.book2 = Book.objects.create(
-            id="2", title="Brave New World", author="Aldous Huxley"
-        )
-
-        self.user = NewUser.objects.create_user(
-            password="passwd", email="user@example.com"
-        )
-        self.admin = NewUser.objects.create_user(
-            password="passwd", email="admin@example.com"
-        )
-
-        self.group = Group.objects.create(name="book_admin")
-        self.admin.groups.add(self.group)
-        self.admin.save()
-
-        self.review1 = Review.objects.create(
-            id="1", stars="5", comment="Awesome book", author=self.user, book=self.book1
-        )
-
-    def get_jwt_token(self, user):
-        refresh = RefreshToken.for_user(user)
-        return str(refresh.access_token)
-
-    def test_view_reviews(self):
-        response = self.client.get("/api/reviews/", format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-
-    def test_view_review(self):
-        response = self.client.get("/api/reviews/1/", format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.data
-        self.assertEqual(data["id"], 1)
-        self.assertEqual(data["comment"], "Awesome book")
-        self.assertEqual(data["stars"], 5)

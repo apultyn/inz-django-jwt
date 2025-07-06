@@ -13,6 +13,6 @@ class Review(models.Model):
     stars = models.IntegerField()
     comment = models.TextField(max_length=2000)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="reviews")
 
     objects = models.Manager()
