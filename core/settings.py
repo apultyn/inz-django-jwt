@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-z&(4u6pw$a7jd4984xt&vh8tk7hkslwp1oz9rim32dbyt1qfbl"
+SECRET_KEY = os.getenv("APP_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["django-jwt-be", "localhost"]
+ALLOWED_HOSTS = ["django-jwt-be", "localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -53,7 +57,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:" + os.getenv("FRONTEND_LOCAL_PORT"), "http://django-jwt-fe:80"]
 
 ROOT_URLCONF = "core.urls"
 
@@ -81,12 +85,11 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "django-jwt-db",
-        "USER": "root",
-        "PASSWORD": "my-secret-pwd",
-        # "HOST": "django-jwt-db",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USERNAME"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST"),
+        "PORT": os.getenv("DB_PORT"),
     }
 }
 
@@ -144,5 +147,5 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = "users.NewUser"
 
 SIMPLE_JWT = {
-    "SIGNING_KEY": "c3b7010ec7e036d29c159c2afb92fb71cc55b81a350d0b81fe4956e8372407c8",
+    "SIGNING_KEY": os.getenv("JWT_KEY"),
 }

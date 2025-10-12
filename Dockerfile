@@ -1,6 +1,5 @@
-FROM ghcr.io/astral-sh/uv:python3.13-alpine
+FROM python:3.13-alpine
 
-# UV instalation
 RUN apk add --no-cache \
     curl \
     gcc \
@@ -9,16 +8,17 @@ RUN apk add --no-cache \
     pkgconfig \
     libffi-dev \
     openssl-dev \
+    mysql \
     mysql-client
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock ./
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN uv pip sync --system pyproject.toml
+RUN chmod +x /app/scripts/entrypoint.sh
 
-EXPOSE 8000
-
-CMD ["uv", "run", "gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+ENTRYPOINT [ "/app/scripts/entrypoint.sh" ]
