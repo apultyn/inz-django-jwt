@@ -57,7 +57,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:" + os.getenv("FRONTEND_LOCAL_PORT"), "http://django-jwt-fe:80"]
+CORS_ALLOWED_ORIGINS = [os.getenv('CORS_ALLOWED_ORIGIN')]
 
 ROOT_URLCONF = "core.urls"
 
