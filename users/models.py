@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.utils.translation import gettext_lazy
+from django.contrib.auth.models import Group
 
 
 class CustomAccountManager(BaseUserManager):
@@ -30,6 +31,10 @@ class CustomAccountManager(BaseUserManager):
         user = self.model(email=email, **other)
         user.set_password(password)
         user.save()
+
+        book_user_group, created = Group.objects.get_or_create(name="book_user")
+        user.groups.add(book_user_group)
+
         return user
 
 

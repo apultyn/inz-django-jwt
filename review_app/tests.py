@@ -67,7 +67,7 @@ class BookITTests(BaseITTests):
                         "id": 1,
                         "stars": 5,
                         "comment": "Awesome book",
-                        "author_email": "user@example.com",
+                        "user_email": "user@example.com",
                         "book": 1,
                     }
                 ],

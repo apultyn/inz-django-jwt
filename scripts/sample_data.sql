@@ -42,7 +42,8 @@ VALUES
 INSERT INTO
     auth_group (name)
 VALUES
-    ("book_admin");
+    ("book_admin"),
+    ("book_user");
 
 INSERT INTO
     users_newuser (
@@ -78,7 +79,10 @@ VALUES
 INSERT INTO
     users_newuser_groups (newuser_id, group_id)
 VALUES
-    (3, 1);
+    (3, 1),
+    (1, 2),
+    (2, 2),
+    (3, 2);
 
 INSERT INTO
     review_app_review (comment, stars, book_id, author_id)

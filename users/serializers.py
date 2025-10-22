@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.settings import api_settings
 
 from .models import NewUser
 
@@ -22,14 +23,10 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        password = validated_data.pop("password", None)
         validated_data.pop("confirm_password", None)
 
-        instance = self.Meta.model(**validated_data)
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
+        user = self.Meta.model.objects.create_user(**validated_data)
+        return user
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -42,3 +39,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["groups"] = list(user.groups.values_list("name", flat=True))
 
         return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        access_token_lifetime = api_settings.ACCESS_TOKEN_LIFETIME
+
+        data["expires_in"] = int(access_token_lifetime.total_seconds())
+        return data
