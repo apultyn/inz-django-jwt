@@ -10,11 +10,13 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ("id", "stars", "comment", "author", "book", "user_email")
-        UniqueTogetherValidator(
-            queryset=Review.objects.all(),
-            fields=["author", "book"],
-            message="You can write only one review per book",
-        )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=["author", "book"],
+                message="You can write only one review per book",
+            )
+        ]
 
 
 class BookSerializer(serializers.ModelSerializer):
