@@ -65,7 +65,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-allowed_origins_str = os.getenv("CORS_ALLOWED_ORIGIN", "")
+allowed_origins_str = os.getenv("CORS_ALLOWED_ORIGINS", "")
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip() for origin in allowed_origins_str.split(",") if origin.strip()
