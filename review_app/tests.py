@@ -68,7 +68,7 @@ class BookITTests(BaseITTests):
                         "stars": 5,
                         "comment": "Awesome book",
                         "user_email": "user@example.com",
-                        "book": 1,
+                        "bookId": 1,
                     }
                 ],
             },
@@ -181,7 +181,7 @@ class ReviewITTests(BaseITTests):
         response = self.client.post(
             "/api/reviews/",
             format="json",
-            data={"stars": 4, "comment": "A little too short", "book": 1},
+            data={"stars": 4, "comment": "A little too short", "bookId": 1},
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -192,7 +192,7 @@ class ReviewITTests(BaseITTests):
         response = self.client.post(
             "/api/reviews/",
             format="json",
-            data={"stars": 4, "comment": "A little too short", "book": 2},
+            data={"stars": 4, "comment": "A little too short", "bookId": 2},
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -208,7 +208,7 @@ class ReviewITTests(BaseITTests):
         response = self.client.post(
             "/api/reviews/",
             format="json",
-            data={"stars": 4, "comment": "A little too short", "book": 1},
+            data={"stars": 4, "comment": "A little too short", "bookId": 1},
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
